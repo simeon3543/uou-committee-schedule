@@ -236,7 +236,7 @@
     var state = { member: null, selected: {}, unavailable: false };
 
     /* 설정 불러오기 — doGet()이 getConfig() JSON을 반환 */
-    fetch(EXEC_URL)
+    fetch(EXEC_URL + '?api=config')
       .then(function (r) { return r.json(); })
       .then(onConfig)
       .catch(function (err) { onError({ message: '설정을 불러오지 못했습니다. (' + (err && err.message ? err.message : err) + ')' }); });
