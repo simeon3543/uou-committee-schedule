@@ -55,7 +55,7 @@
     .wordmark .wm-en { font-size: 9px; font-weight: 600; letter-spacing: 0.08em; color: var(--gray-500); }
     .eyebrow { font-size: 12px; font-weight: 700; letter-spacing: 0.04em; color: var(--green-700); margin-bottom: 8px; }
     .hero h1 { font-size: 28px; font-weight: 700; line-height: 1.2; letter-spacing: -0.01em; color: var(--gray-900); }
-    .hero .deadline { margin-top: 16px; display: inline-flex; align-items: center; gap: 6px; background: var(--green-50); border: 1px solid var(--green-100); padding: 7px 14px; border-radius: var(--r-full, 9999px); font-size: 13px; color: var(--green-800); }
+    .hero .deadline { margin-top: 16px; display: inline-flex; align-items: center; gap: 6px; background: var(--green-50); border: 1px solid var(--green-100); padding: 7px 14px; border-radius: 9999px; font-size: 13px; color: var(--green-800); }
     .hero .deadline b { color: var(--green-700); font-weight: 700; }
 
     .container { max-width: 760px; margin: 0 auto; padding: 28px 20px 80px; }
@@ -228,18 +228,22 @@
   </main>
 
   <script>
-    /* ── Apps Script 웹앱 엔드포인트 (doGet/doPost) ──
-       GitHub Pages 정적 페이지에서 이 주소로 통신해 구글 시트에 저장합니다. */
+    /* ── Apps Script 웹앱 엔드포인트 ── */
     var EXEC_URL = 'https://script.google.com/macros/s/AKfycbzjGjqBhT-AOiBJ_sEsQQ78Sv5f0eFSDVFsqnAnjKvu61ZFHfq2-GBhkp0-oqqxHS0a/exec';
 
     var CONFIG = null;
     var state = { member: null, selected: {}, unavailable: false };
 
-    /* 설정 불러오기 — doGet()이 getConfig() JSON을 반환 */
-    fetch(EXEC_URL + '?api=config')
-      .then(function (r) { return r.json(); })
-      .then(onConfig)
-      .catch(function (err) { onError({ message: '설정을 불러오지 못했습니다. (' + (err && err.message ? err.message : err) + ')' }); });
+    /* 설정 불러오기 — JSONP 방식 (CORS 우회) */
+    window.__onUOUConfig = function (cfg) { onConfig(cfg); };
+    (function loadConfig() {
+      var s = document.createElement('script');
+      s.src = EXEC_URL + '?api=config&callback=__onUOUConfig';
+      s.onerror = function () {
+        onError({ message: '설정을 불러오지 못했습니다. (배포 권한이 "모든 사용자"인지, exec 주소가 맞는지 확인하세요)' });
+      };
+      document.body.appendChild(s);
+    })();
 
     function onConfig(cfg) {
       document.getElementById('loading').hidden = true;
@@ -359,9 +363,8 @@
         unavailable: state.unavailable,
         note: document.getElementById('note').value.trim()
       };
-      /* doPost(e)로 제출 — Content-Type 미지정(text/plain)으로 CORS preflight 회피 */
-      fetch(EXEC_URL, { method: 'POST', body: JSON.stringify(payload) })
-        .then(function (r) { return r.json(); })
+      /* doPost(e)로 제출 — no-cors 방식 (CORS 우회). 응답은 못 읽지만 시트 저장은 실행됨 */
+      fetch(EXEC_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) })
         .then(function () { showDone(payload, ids); })
         .catch(function (err) {
           btn.disabled = false;
