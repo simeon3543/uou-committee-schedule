@@ -1,44 +1,414 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
+  <base target="_top">
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>울산대학교 교원징계위원회 일정조사</title>
-  <!-- 실제 앱(Apps Script 웹앱)으로 자동 연결 -->
-  <meta http-equiv="refresh" content="1; url=https://script.google.com/macros/s/AKfycbyaVgJZ0JU9aaONakwn5CGCiJ8mOj5eV65tO286bn4Ae7RWWHR_EaIoJbFo14t9v7s/exec">
   <style>
+    /* ── Pretendard (울산대 웹 본문 서체 — 전용서체 우리고딕의 현대적 고딕 대체) ── */
     @import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css");
+
+    :root {
+      /* UOU Design System tokens */
+      --green-50:#E6F5EC; --green-100:#C2E8D2; --green-500:#009A44;
+      --green-600:#00873B; --green-700:#006E30; --green-800:#005625;
+      --gray-0:#FFFFFF; --gray-50:#F7F8F8; --gray-100:#EFF0F1; --gray-200:#DCDEE0;
+      --gray-300:#C2C5C8; --gray-400:#9A9EA3; --gray-500:#71767B; --gray-600:#565B60;
+      --gray-700:#3F4348; --gray-800:#333333; --gray-900:#1C1E20;
+      --danger:#D32F2F;
+
+      --primary: var(--green-500);
+      --on-primary: #ffffff;
+      --ink: var(--gray-900);
+      --charcoal: var(--gray-700);
+      --graphite: var(--gray-500);
+      --canvas: var(--gray-0);
+      --cloud: var(--gray-50);
+      --steel: var(--gray-300);
+      --hairline: var(--gray-200);
+
+      --r-sm: 4px;
+      --r-md: 8px;
+      --r-lg: 12px;
+      --r-xl: 16px;
+      --lift: 0 1px 2px rgba(0,0,0,0.06);
+      --float: 0 2px 8px rgba(0,0,0,0.08);
+      --focus-ring: 0 0 0 3px rgba(0,154,68,0.15);
+    }
+
     * { box-sizing: border-box; margin: 0; padding: 0; }
+
     body {
-      font-family: 'Pretendard', sans-serif; background: #1a1a1a; color: #fff;
-      min-height: 100vh; display: flex; align-items: center; justify-content: center;
-      text-align: center; padding: 24px;
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+      background: var(--canvas);
+      color: var(--gray-800);
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
     }
-    .wrap { max-width: 420px; }
-    .eyebrow { font-size: 12px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: #c9e0fc; margin-bottom: 12px; }
-    h1 { font-size: 26px; font-weight: 600; line-height: 1.2; margin-bottom: 20px; }
-    .spinner {
-      width: 36px; height: 36px; margin: 0 auto 18px;
-      border: 3px solid rgba(255,255,255,.2); border-top-color: #296ef9;
-      border-radius: 9999px; animation: spin .8s linear infinite;
-    }
+
+    /* 헤더: 화이트 슬랩 + 4px 그린 상단 라인 (절제된 장식, 그린은 강조에만) */
+    .hero { position: relative; background: var(--gray-0); color: var(--gray-900); padding: 28px 24px 30px; border-top: 4px solid var(--green-500); border-bottom: 1px solid var(--gray-100); }
+    .hero-inner { position: relative; max-width: 760px; margin: 0 auto; }
+    .wordmark { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
+    .wordmark .u { width: 34px; height: 34px; flex: none; border-radius: var(--r-md); background: var(--green-500); color: #fff; display: grid; place-items: center; font-weight: 800; font-size: 16px; letter-spacing: -0.02em; }
+    .wordmark .wm-ko { font-size: 16px; font-weight: 800; color: var(--gray-900); line-height: 1.1; }
+    .wordmark .wm-en { font-size: 9px; font-weight: 600; letter-spacing: 0.08em; color: var(--gray-500); }
+    .eyebrow { font-size: 12px; font-weight: 700; letter-spacing: 0.04em; color: var(--green-700); margin-bottom: 8px; }
+    .hero h1 { font-size: 28px; font-weight: 700; line-height: 1.2; letter-spacing: -0.01em; color: var(--gray-900); }
+    .hero .deadline { margin-top: 16px; display: inline-flex; align-items: center; gap: 6px; background: var(--green-50); border: 1px solid var(--green-100); padding: 7px 14px; border-radius: var(--r-full, 9999px); font-size: 13px; color: var(--green-800); }
+    .hero .deadline b { color: var(--green-700); font-weight: 700; }
+
+    .container { max-width: 760px; margin: 0 auto; padding: 28px 20px 80px; }
+    .notice { background: var(--cloud); border: 1px solid var(--gray-100); border-radius: var(--r-md); padding: 14px 16px; font-size: 14px; color: var(--charcoal); margin-bottom: 24px; line-height: 1.5; }
+
+    .step-head { display: flex; align-items: baseline; gap: 10px; margin-bottom: 4px; }
+    .step-num { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 9999px; background: var(--green-500); color: #fff; font-size: 13px; font-weight: 700; }
+    .step-title { font-size: 20px; font-weight: 700; color: var(--gray-900); }
+    .step-desc { font-size: 13px; color: var(--graphite); margin: 6px 0 18px 34px; }
+
+    /* 위원 카드 — UOU Card (white, gray border, shadow-sm, hover 그린 상단 보더) */
+    .member-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 28px; }
+    .member-card { text-align: left; cursor: pointer; background: var(--canvas); border: 1px solid var(--hairline); border-top: 3px solid var(--hairline); border-radius: var(--r-lg); padding: 16px 18px; box-shadow: var(--lift); transition: box-shadow .15s ease, border-color .15s ease; display: flex; flex-direction: column; gap: 3px; min-height: 72px; justify-content: center; font-family: inherit; }
+    .member-card:hover { border-top-color: var(--green-500); box-shadow: var(--float); }
+    .member-card.selected { border-color: var(--green-500); border-top-color: var(--green-500); background: var(--green-50); box-shadow: var(--focus-ring); }
+    .member-card .m-name { font-size: 17px; font-weight: 600; color: var(--gray-900); }
+    .member-card .m-title { font-size: 13px; color: var(--graphite); }
+    .member-card.selected .m-title { color: var(--green-700); }
+
+    /* 선택된 위원 바 — UOU Gray 다크 바 */
+    .selected-bar { display: flex; align-items: center; justify-content: space-between; background: var(--gray-800); color: #fff; border-radius: var(--r-md); padding: 12px 16px; margin-bottom: 22px; }
+    .selected-bar .label { font-size: 12px; color: var(--green-100); letter-spacing: .04em; }
+    .selected-bar .who { font-size: 16px; font-weight: 600; margin-top: 2px; }
+    .selected-bar .change { background: transparent; border: 1px solid rgba(255,255,255,.35); color: #fff; border-radius: var(--r-sm); padding: 6px 12px; font-size: 12px; cursor: pointer; font-family: inherit; transition: background .12s ease; }
+    .selected-bar .change:hover { background: rgba(255,255,255,.12); }
+
+    /* 슬롯 카드 */
+    .slot-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 8px; }
+    .slot-card { display: flex; align-items: center; gap: 14px; cursor: pointer; width: 100%; text-align: left; background: var(--canvas); border: 1px solid var(--hairline); border-radius: var(--r-lg); padding: 16px 18px; box-shadow: var(--lift); transition: box-shadow .15s ease, border-color .15s ease; font-family: inherit; }
+    .slot-card:hover { border-color: var(--steel); box-shadow: var(--float); }
+    .slot-card.selected { border-color: var(--green-500); background: var(--green-50); }
+    .slot-card .check { flex: 0 0 auto; width: 24px; height: 24px; border-radius: var(--r-sm); border: 2px solid var(--steel); background: #fff; position: relative; transition: background .12s ease, border-color .12s ease; }
+    .slot-card.selected .check { border-color: var(--green-500); background: var(--green-500); }
+    .slot-card.selected .check::after { content: ""; position: absolute; left: 7px; top: 3px; width: 6px; height: 11px; border: solid #fff; border-width: 0 2.5px 2.5px 0; transform: rotate(45deg); }
+    .slot-text { display: flex; flex-direction: column; gap: 2px; }
+    .slot-main { font-size: 17px; font-weight: 600; color: var(--gray-900); }
+    .slot-sub { font-size: 13px; color: var(--graphite); }
+    .slot-card.disabled { opacity: .4; pointer-events: none; }
+
+    /* 전체 불가 — danger */
+    .unavail-row { margin: 16px 0 22px; }
+    .unavail-card { display: flex; align-items: center; gap: 12px; width: 100%; cursor: pointer; background: var(--cloud); border: 1px solid var(--hairline); border-radius: var(--r-md); padding: 14px 16px; font-family: inherit; font-size: 15px; color: var(--charcoal); transition: all .12s ease; }
+    .unavail-card.selected { border-color: var(--danger); background: #FBE5E5; color: var(--danger); font-weight: 600; }
+    .unavail-card .box { width: 20px; height: 20px; border-radius: var(--r-sm); border: 2px solid var(--steel); background: #fff; position: relative; flex: 0 0 auto; }
+    .unavail-card.selected .box { border-color: var(--danger); background: var(--danger); }
+    .unavail-card.selected .box::after { content: ""; position: absolute; left: 6px; top: 2px; width: 5px; height: 10px; border: solid #fff; border-width: 0 2px 2px 0; transform: rotate(45deg); }
+
+    /* 비고 */
+    .field-label { font-size: 13px; font-weight: 600; color: var(--charcoal); margin-bottom: 8px; display: block; }
+    textarea.note { width: 100%; min-height: 72px; resize: vertical; border: 1px solid var(--steel); border-radius: var(--r-sm); padding: 12px 14px; font-family: inherit; font-size: 15px; color: var(--ink); transition: border-color .15s ease, box-shadow .15s ease; }
+    textarea.note:focus { outline: none; border-color: var(--green-500); box-shadow: var(--focus-ring); }
+
+    /* 버튼 — UOU Primary */
+    .actions { margin-top: 28px; }
+    .btn-primary { width: 100%; background: var(--green-500); color: var(--on-primary); border: none; border-radius: var(--r-md); padding: 0 24px; height: 52px; font-family: inherit; font-size: 16px; font-weight: 700; cursor: pointer; transition: background .15s ease; }
+    .btn-primary:hover { background: var(--green-600); }
+    .btn-primary:disabled { background: var(--steel); cursor: not-allowed; }
+    .validation { color: var(--danger); font-size: 13px; margin-top: 12px; text-align: center; min-height: 18px; }
+
+    /* 완료 */
+    .done { text-align: center; padding: 40px 0; }
+    .done .icon { width: 72px; height: 72px; margin: 0 auto 20px; border-radius: 9999px; background: var(--green-500); display: flex; align-items: center; justify-content: center; }
+    .done .icon svg { width: 34px; height: 34px; }
+    .done h2 { font-size: 24px; font-weight: 700; margin-bottom: 10px; color: var(--gray-900); }
+    .done p { font-size: 15px; color: var(--graphite); line-height: 1.6; }
+    .done .summary { text-align: left; background: var(--cloud); border: 1px solid var(--gray-100); border-radius: var(--r-md); padding: 16px 18px; margin: 24px auto 0; max-width: 460px; font-size: 14px; }
+    .done .summary .row { display: flex; gap: 8px; padding: 4px 0; }
+    .done .summary .k { color: var(--graphite); flex: 0 0 80px; }
+    .done .summary .v { color: var(--ink); font-weight: 500; }
+    .btn-text { margin-top: 24px; background: none; border: none; color: var(--green-700); font-family: inherit; font-size: 15px; font-weight: 600; cursor: pointer; text-decoration: underline; text-underline-offset: 0.18em; }
+    .btn-text:hover { color: var(--green-500); }
+
+    /* 로딩 */
+    .loading { text-align: center; padding: 60px 0; color: var(--graphite); font-size: 15px; }
+    .spinner { width: 32px; height: 32px; margin: 0 auto 16px; border: 3px solid var(--gray-100); border-top-color: var(--green-500); border-radius: 9999px; animation: spin .8s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
-    p { font-size: 14px; color: #c2c2c2; line-height: 1.6; margin-bottom: 24px; }
-    a.btn {
-      display: inline-block; background: #024ad8; color: #fff; text-decoration: none;
-      font-size: 15px; font-weight: 700; letter-spacing: .5px;
-      padding: 14px 28px; border-radius: 4px;
+
+    [hidden] { display: none !important; }
+
+    @media (max-width: 480px) {
+      .member-grid { grid-template-columns: 1fr; }
+      .hero h1 { font-size: 23px; }
+      .hero { padding: 24px 20px 26px; }
     }
-    a.btn:hover { background: #0e3191; }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="eyebrow">울산대학교</div>
-    <h1>교원징계위원회<br>일정조사</h1>
-    <div class="spinner"></div>
-    <p>응답 페이지로 이동 중입니다…<br>자동으로 넘어가지 않으면 아래 버튼을 눌러주세요.</p>
-    <a class="btn" href="https://script.google.com/macros/s/AKfycbyaVgJZ0JU9aaONakwn5CGCiJ8mOj5eV65tO286bn4Ae7RWWHR_EaIoJbFo14t9v7s/exec">응답 페이지 열기</a>
-  </div>
+  <header class="hero">
+    <div class="hero-inner">
+      <div class="wordmark">
+        <span class="u">U</span>
+        <span>
+          <span class="wm-ko">울산대학교</span><br>
+          <span class="wm-en">UNIVERSITY OF ULSAN</span>
+        </span>
+      </div>
+      <div class="eyebrow">교원징계위원회</div>
+      <h1 id="hero-title">일정 조사</h1>
+      <div class="deadline" id="hero-deadline" hidden>
+        응답 마감 &nbsp;<b id="deadline-val"></b>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <div id="loading" class="loading">
+      <div class="spinner"></div>
+      불러오는 중입니다…
+    </div>
+
+    <div id="error-box" class="notice" style="color:var(--danger);border-color:#F3C7C7;background:#FBE5E5" hidden></div>
+    <div id="notice" class="notice" hidden></div>
+
+    <!-- STEP 1: 위원 선택 -->
+    <section id="step-member" hidden>
+      <div class="step-head">
+        <span class="step-num">1</span>
+        <span class="step-title">본인을 선택해 주세요</span>
+      </div>
+      <div class="step-desc">아래 위원 명단에서 본인을 선택하면 일정 선택 화면으로 이동합니다.</div>
+      <div class="member-grid" id="member-grid"></div>
+    </section>
+
+    <!-- STEP 2: 일정 선택 -->
+    <section id="step-slots" hidden>
+      <div class="selected-bar">
+        <div>
+          <div class="label">선택된 위원</div>
+          <div class="who" id="selected-who"></div>
+        </div>
+        <button class="change" id="btn-change">변경</button>
+      </div>
+
+      <div class="step-head">
+        <span class="step-num">2</span>
+        <span class="step-title">참석 가능한 일시 선택</span>
+      </div>
+      <div class="step-desc">참석 가능한 일시를 모두 선택하세요. (복수 선택 가능)</div>
+
+      <div class="slot-list" id="slot-list"></div>
+
+      <div class="unavail-row">
+        <button class="unavail-card" id="btn-unavail">
+          <span class="box"></span>
+          제시된 일정에 모두 참석이 어렵습니다
+        </button>
+      </div>
+
+      <label class="field-label" for="note">비고 (선택)</label>
+      <textarea class="note" id="note" placeholder="조건부 가능·온라인 참석 가능 등 전달할 내용이 있으면 적어주세요."></textarea>
+
+      <div class="actions">
+        <button class="btn-primary" id="btn-submit">제출하기</button>
+        <div class="validation" id="validation"></div>
+      </div>
+    </section>
+
+    <!-- STEP 3: 완료 -->
+    <section id="step-done" hidden>
+      <div class="done">
+        <div class="icon">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <h2>제출이 완료되었습니다</h2>
+        <p>소중한 응답 감사합니다.<br>응답을 수정하려면 다시 제출하시면 됩니다.</p>
+        <div class="summary" id="done-summary"></div>
+        <button class="btn-text" id="btn-restart">응답 수정 / 다른 위원으로 다시 작성</button>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    /* ── Apps Script 웹앱 엔드포인트 (doGet/doPost) ──
+       GitHub Pages 정적 페이지에서 이 주소로 통신해 구글 시트에 저장합니다. */
+    var EXEC_URL = 'https://script.google.com/macros/s/AKfycbzjGjqBhT-AOiBJ_sEsQQ78Sv5f0eFSDVFsqnAnjKvu61ZFHfq2-GBhkp0-oqqxHS0a/exec';
+
+    var CONFIG = null;
+    var state = { member: null, selected: {}, unavailable: false };
+
+    /* 설정 불러오기 — doGet()이 getConfig() JSON을 반환 */
+    fetch(EXEC_URL)
+      .then(function (r) { return r.json(); })
+      .then(onConfig)
+      .catch(function (err) { onError({ message: '설정을 불러오지 못했습니다. (' + (err && err.message ? err.message : err) + ')' }); });
+
+    function onConfig(cfg) {
+      document.getElementById('loading').hidden = true;
+      if (!cfg || cfg.error) {
+        return onError({ message: (cfg && cfg.error) || '설정을 불러오지 못했습니다.' });
+      }
+      CONFIG = cfg;
+      document.getElementById('hero-title').textContent = cfg.title || '일정 조사';
+      if (cfg.deadline) {
+        document.getElementById('deadline-val').textContent = cfg.deadline;
+        document.getElementById('hero-deadline').hidden = false;
+      }
+      if (cfg.notice) {
+        var n = document.getElementById('notice');
+        n.textContent = cfg.notice;
+        n.hidden = false;
+      }
+      renderMembers();
+      renderSlots();
+      document.getElementById('step-member').hidden = false;
+    }
+
+    function onError(err) {
+      document.getElementById('loading').hidden = true;
+      var box = document.getElementById('error-box');
+      box.textContent = '오류: ' + (err && err.message ? err.message : err);
+      box.hidden = false;
+    }
+
+    function renderMembers() {
+      var grid = document.getElementById('member-grid');
+      grid.innerHTML = '';
+      CONFIG.members.forEach(function (m) {
+        var card = document.createElement('button');
+        card.className = 'member-card';
+        card.dataset.id = m.id;
+        if (m.name) {
+          card.innerHTML = '<span class="m-name">' + esc(m.name) + '</span>' +
+                           '<span class="m-title">' + esc(m.title) + '</span>';
+        } else {
+          card.innerHTML = '<span class="m-name">' + esc(m.title) + '</span>';
+        }
+        card.addEventListener('click', function () { selectMember(m); });
+        grid.appendChild(card);
+      });
+    }
+
+    function selectMember(m) {
+      state.member = m;
+      document.getElementById('selected-who').textContent =
+        m.name ? (m.name + ' · ' + m.title) : m.title;
+      document.getElementById('step-member').hidden = true;
+      document.getElementById('step-slots').hidden = false;
+      window.scrollTo(0, 0);
+    }
+
+    document.getElementById('btn-change').addEventListener('click', function () {
+      document.getElementById('step-slots').hidden = true;
+      document.getElementById('step-member').hidden = false;
+      window.scrollTo(0, 0);
+    });
+
+    function renderSlots() {
+      var list = document.getElementById('slot-list');
+      list.innerHTML = '';
+      if (!CONFIG.slots.length) {
+        list.innerHTML = '<div class="notice">아직 등록된 후보 일정이 없습니다. 관리자에게 문의하세요.</div>';
+        return;
+      }
+      CONFIG.slots.forEach(function (s) {
+        var card = document.createElement('button');
+        card.className = 'slot-card';
+        card.dataset.id = s.id;
+        card.innerHTML =
+          '<span class="check"></span>' +
+          '<span class="slot-text">' +
+            '<span class="slot-main">' + esc(s.label) + '</span>' +
+            (s.place ? '<span class="slot-sub">' + esc(s.place) + '</span>' : '') +
+          '</span>';
+        card.addEventListener('click', function () { toggleSlot(s.id, card); });
+        list.appendChild(card);
+      });
+    }
+
+    function toggleSlot(id, card) {
+      if (state.unavailable) return;
+      if (state.selected[id]) { delete state.selected[id]; card.classList.remove('selected'); }
+      else { state.selected[id] = true; card.classList.add('selected'); }
+      clearValidation();
+    }
+
+    document.getElementById('btn-unavail').addEventListener('click', function () {
+      state.unavailable = !state.unavailable;
+      this.classList.toggle('selected', state.unavailable);
+      var cards = document.querySelectorAll('#slot-list .slot-card');
+      if (state.unavailable) {
+        state.selected = {};
+        cards.forEach(function (c) { c.classList.remove('selected'); c.classList.add('disabled'); });
+      } else {
+        cards.forEach(function (c) { c.classList.remove('disabled'); });
+      }
+      clearValidation();
+    });
+
+    document.getElementById('btn-submit').addEventListener('click', function () {
+      var ids = Object.keys(state.selected);
+      if (!state.unavailable && ids.length === 0) {
+        return showValidation('참석 가능한 일시를 하나 이상 선택하거나, 전체 불가를 선택해 주세요.');
+      }
+      var btn = this;
+      btn.disabled = true;
+      btn.textContent = '제출 중…';
+      var payload = {
+        memberTitle: state.member.title,
+        memberName: state.member.name,
+        selectedSlotIds: ids.map(Number),
+        unavailable: state.unavailable,
+        note: document.getElementById('note').value.trim()
+      };
+      /* doPost(e)로 제출 — Content-Type 미지정(text/plain)으로 CORS preflight 회피 */
+      fetch(EXEC_URL, { method: 'POST', body: JSON.stringify(payload) })
+        .then(function (r) { return r.json(); })
+        .then(function () { showDone(payload, ids); })
+        .catch(function (err) {
+          btn.disabled = false;
+          btn.textContent = '제출하기';
+          showValidation('제출 중 오류가 발생했습니다: ' + (err && err.message ? err.message : err));
+        });
+    });
+
+    function showDone(payload, ids) {
+      var who = state.member.name ? (state.member.name + ' · ' + state.member.title) : state.member.title;
+      var chosen;
+      if (payload.unavailable) {
+        chosen = '전체 일정 참석 불가';
+      } else {
+        chosen = CONFIG.slots
+          .filter(function (s) { return ids.indexOf(String(s.id)) !== -1; })
+          .map(function (s) { return s.label; })
+          .join('<br>');
+      }
+      document.getElementById('done-summary').innerHTML =
+        '<div class="row"><span class="k">위원</span><span class="v">' + esc(who) + '</span></div>' +
+        '<div class="row"><span class="k">선택 일정</span><span class="v">' + chosen + '</span></div>' +
+        (payload.note ? '<div class="row"><span class="k">비고</span><span class="v">' + esc(payload.note) + '</span></div>' : '');
+      document.getElementById('step-slots').hidden = true;
+      document.getElementById('step-done').hidden = false;
+      window.scrollTo(0, 0);
+    }
+
+    document.getElementById('btn-restart').addEventListener('click', function () {
+      state = { member: null, selected: {}, unavailable: false };
+      document.getElementById('note').value = '';
+      document.getElementById('btn-unavail').classList.remove('selected');
+      document.getElementById('btn-submit').disabled = false;
+      document.getElementById('btn-submit').textContent = '제출하기';
+      renderSlots();
+      document.getElementById('step-done').hidden = true;
+      document.getElementById('step-member').hidden = false;
+      window.scrollTo(0, 0);
+    });
+
+    function showValidation(msg) { document.getElementById('validation').textContent = msg; }
+    function clearValidation() { document.getElementById('validation').textContent = ''; }
+    function esc(s) {
+      return String(s == null ? '' : s)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+  </script>
 </body>
 </html>
